@@ -37,7 +37,7 @@ init([]) ->
     Client_specs   = client_child_specs(Client_config),
     Server_spec    = erpc_server_spec(),
     Monitor_spec   = erpc_monitor_spec(),
-    {ok, {{one_for_one, 1, 5}, [Monitor_spec, Server_spec | Client_specs]}}.
+    {ok, {{one_for_one, 1, 5}, lists:flatten([Monitor_spec, Server_spec | Client_specs])}}.
 
 client_child_specs(Client_config) ->
     lists:flatten
@@ -55,12 +55,16 @@ client_child_specs(Client_config) ->
      ).
 
 erpc_server_spec() ->
-    Restart  = permanent,
-    Shutdown = 2000,
-    Type     = worker,
-    {'erpc_server',
-     {'erpc_server', start_link, []},
-     Restart, Shutdown, Type, ['erpc_server']}.
+    case application:get_env(erpc, server_config) of
+        {ok, _Values} ->
+            Restart  = permanent,
+            Shutdown = 2000,
+            Type     = worker,
+            {'erpc_server',
+             {'erpc_server', start_link, []},
+             Restart, Shutdown, Type, ['erpc_server']};
+        undefined -> []
+    end.
 
 erpc_monitor_spec() ->
     Restart  = permanent,
