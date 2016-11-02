@@ -99,8 +99,12 @@ wait_for_reply(Timeout, Call_ref) ->
 
 cast(Name, M, F, A) ->
     case erpc_lb:get_conn_pid(Name) of
-        {ok, {_Pid, TMod, Conn_handle}} ->
-            ok = TMod:send(Conn_handle, term_to_binary({cast, M, F, A}));
+        {ok, {Pid, TMod, Conn_handle}} ->
+            case TMod:send(Conn_handle, term_to_binary({cast, M, F, A})) of
+                ok -> ok;
+                {error, _Reason} = Error ->
+                    Pid ! {tcp_error, element(2, Conn_handle), Error}
+            end;
         _ ->
             {badrpc, not_connected}
     end.
