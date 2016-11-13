@@ -236,14 +236,17 @@ handle_info(heartbeat, #client_state{conn_handle       = Conn_handle,
                                      peer_node         = Peer_node
                                     } = State) ->
     %% log_msg("Sending heartbeat to server : ~p~n", [Host]),
-    ok = TMod:send(Conn_handle, heartbeat()),
     M_1 = M + 1,
-    case M_1 > 3 of
-        true ->
+    case TMod:send(Conn_handle, heartbeat()) of
+        {error, Reason} ->
+            log_msg("Can't send heartbean, socket problem: ~p~n", [Reason]),
+            NewState = cleanup(State),
+            {noreply, NewState};
+        ok when M_1 > 3 ->
             log_msg("Missed ~p heartbeats from ~p. Closing connection~n", [M_1, Peer_node]),
             State_1 = cleanup(State),
             {noreply, State_1};
-        false ->
+        ok ->
             {noreply, State#client_state{missed_heartbeats = M_1}}
     end;
 
@@ -315,4 +318,4 @@ heartbeat() ->
 
 send_node_identity(#client_state{conn_handle = Conn_handle,
                                  tmod        = TMod}) ->
-    ok = TMod:send(Conn_handle, term_to_binary({identity, node()})).
+    _ = TMod:send(Conn_handle, term_to_binary({identity, node()})).
