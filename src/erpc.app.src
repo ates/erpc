@@ -1,14 +1,7 @@
 {application, erpc, [
-	{description, ""},
-	{vsn, "0.6.0"},
-	{id, "git"},
-	{modules, []},
-	{registered, []},
-	{applications, [
-		kernel,
-		stdlib,
-		sasl
-	]},
-	{mod, {erpc_app, []}},
-	{env, []}
+    {description, ""},
+    {vsn, "0.6.0"},
+    {applications, [kernel, stdlib]},
+    {modules, []},
+    {mod, {erpc_app, []}}
 ]}.
