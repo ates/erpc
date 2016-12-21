@@ -71,7 +71,7 @@ close(#erpc_tcp_socket{socket = Socket}) ->
     catch gen_tcp:close(Socket).
 
 setopts(#erpc_tcp_socket{socket = Socket}, Opts) ->
-    inet:setopts(Socket, Opts).
+    catch inet:setopts(Socket, Opts).
 
 host(#erpc_tcp_socket{host = Host}) ->
     Host.
