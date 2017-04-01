@@ -56,7 +56,12 @@ connect(Conn_config) ->
                          Host_1 ->
                              {Host_1, 9090}
                      end,
-    Socket_options = [{active, once}, binary, {packet, 4}],
+    Socket_options = [
+        {active, once},
+        binary,
+        {packet, 4},
+        {send_timeout, proplists:get_value(send_timeout, Conn_config, 5000)}
+    ],
     case gen_tcp:connect(Host, Port, Socket_options) of
         {ok, Socket} ->
             {ok, #erpc_tcp_socket{host = Host, port = Port, socket = Socket}};
